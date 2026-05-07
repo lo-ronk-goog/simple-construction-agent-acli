@@ -63,6 +63,23 @@ You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`
 
 ---
 
+## 🚀 CI/CD Pipeline
+
+This project includes a custom CI/CD pipeline configured for GitHub Actions:
+
+- **File**: `.github/workflows/ci.yml`
+- **Environment**: Defined by the `Dockerfile` in the root directory. It installs `agents-cli` and handles dependencies like `litellm` in the cloud.
+- **Triggers**:
+  - **CI**: Runs on every Pull Request or push to `main`. It builds the container and runs agent evaluations.
+  - **CD**: Triggers when you push a version tag (e.g., `v1.0.0`).
+
+### How to use:
+1.  Add your `GEMINI_API_KEY` to GitHub Secrets.
+2.  Push code to see the CI run evaluations.
+3.  Push a tag to trigger the deployment workflow.
+
+---
+
 ## Development
 
 Edit your agent logic in `app/agent.py` and test with `agents-cli playground` - it auto-reloads on save.
