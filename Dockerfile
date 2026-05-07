@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:${PATH}"
 
+# Install google-agents-cli as a tool
+RUN uv tool install google-agents-cli
+
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
@@ -22,4 +25,4 @@ RUN uv sync --extra eval
 COPY . .
 
 # Default command
-CMD ["uv", "run", "agents-cli", "eval", "run"]
+CMD ["agents-cli", "eval", "run"]

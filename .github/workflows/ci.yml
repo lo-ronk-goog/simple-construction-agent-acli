@@ -5,6 +5,8 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+    tags:
+      - 'v*' # Trigger on version tags
   workflow_dispatch:
 
 jobs:
@@ -22,4 +24,23 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           docker build -t agent-ci-image .
-          docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY agent-ci-image uv run agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
+          # Run evaluations directly using the installed tool
+          docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY agent-ci-image agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
+
+  deploy:
+    name: Deploy to Agent Platform
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy with Tag
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          echo "Deploying version $TAG_NAME to Agent Platform..."
+          # Example of how you might use the tag in deployment:
+          # docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY agent-ci-image agents-cli deploy --version $TAG_NAME
