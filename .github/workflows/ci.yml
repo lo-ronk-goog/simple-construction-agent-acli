@@ -39,13 +39,10 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Create a directory on the runner to store results
-          mkdir -p ${{ github.workspace }}/eval_results
-          
-          # Run the container and mount the results directory
+          # Run the container and mount the entire workspace
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
-            -v ${{ github.workspace }}/eval_results:/app/app/.adk/eval_history \
+            -v ${{ github.workspace }}:/app \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
             agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
 
@@ -54,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: eval-results
-          path: ${{ github.workspace }}/eval_results/
+          path: ${{ github.workspace }}/app/.adk/eval_history/
 
   deploy:
     name: Deploy to Agent Platform
