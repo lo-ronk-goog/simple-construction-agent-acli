@@ -117,4 +117,4 @@ jobs:
             -v ${{ github.workspace }}/gcloud:/usr/local/bin/gcloud \
             -v ${{ steps.auth.outputs.credentials_file_path }}:/app/gha-creds.json \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
-            agents-cli deploy --project lpr-gemini-enterprise-1 --no-confirm-project
+            bash -c "uv lock && agents-cli deploy --project lpr-gemini-enterprise-1 --no-confirm-project"
