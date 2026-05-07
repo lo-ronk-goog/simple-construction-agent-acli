@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
+  test-and-eval:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,14 +20,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/152008061700/locations/global/workloadIdentityPools/github-pool/providers/github-provider
           service_account: github-runner-sa@lpr-gemini-enterprise-1.iam.gserviceaccount.com
+          token_format: 'access_token'
 
-      - name: Configure Docker for Artifact Registry
+      - name: Log in to Docker
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev
+          echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin us-central1-docker.pkg.dev
 
       - name: Pull Shared Runner Image
         run: |
@@ -56,7 +58,7 @@ jobs:
 
   deploy:
     name: Deploy to Agent Platform
-    needs: build-and-test
+    needs: test-and-eval
     if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags
     runs-on: ubuntu-latest
     environment: production # This enables the HITL manual approval gate
