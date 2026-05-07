@@ -16,12 +16,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }} # Requires SA key in this repo too
 
-      - name: Build Docker Image
+      - name: Configure Docker for Artifact Registry
         run: |
-          docker build -t agent-ci-image .
+          gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Pull Shared Runner Image
+        run: |
+          docker pull us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest
 
       - name: Run Agent Evals
         env:
@@ -34,11 +40,11 @@ jobs:
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
             -v ${{ github.workspace }}/eval_results:/app/app/.adk/eval_history \
-            agent-ci-image \
+            us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
             agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
 
       - name: Upload Eval Results
-        if: always() # Always upload results even if tests fail
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eval-results
@@ -61,4 +67,4 @@ jobs:
         run: |
           echo "Deploying version $TAG_NAME to Agent Platform..."
           # Example of how you might use the tag in deployment:
-          # docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY agent-ci-image agents-cli deploy --version $TAG_NAME
+          # docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest agents-cli deploy --version $TAG_NAME
