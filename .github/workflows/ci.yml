@@ -40,13 +40,23 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Run the container and filter out the verbose dependency noise
+          # Run the container and save all output to a file
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
             -e PYTHONWARNINGS="ignore" \
             -v ${{ github.workspace }}:/app \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
-            agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json | grep -v -E "Downloading|Downloaded|Installed| \\+|Building|Built|Prepared|Resolved|warning: Failed to hardlink|Using CPython|Creating virtual environment"
+            agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json > eval_output.txt 2>&1 || EXIT_CODE=$?
+          
+          # If successful, just print the summary. If failed, print everything.
+          if [ -z "$EXIT_CODE" ]; then
+            echo "Evals passed! Summary:"
+            grep -A 5 "Eval Run Summary" eval_output.txt
+          else
+            echo "Evals failed! Full logs below:"
+            cat eval_output.txt
+            exit $EXIT_CODE
+          fi
 
       - name: Upload Eval Results
         if: always()
