@@ -19,13 +19,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and Run Evals in Container
+      - name: Build Docker Image
+        run: |
+          docker build -t agent-ci-image .
+
+      - name: Run Agent Evals
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          docker build -t agent-ci-image .
-          # Run evaluations directly using the installed tool
-          docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY agent-ci-image agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
+          # Create a directory on the runner to store results
+          mkdir -p ${{ github.workspace }}/eval_results
+          
+          # Run the container and mount the results directory
+          docker run --rm \
+            -e GEMINI_API_KEY=$GEMINI_API_KEY \
+            -v ${{ github.workspace }}/eval_results:/app/app/.adk/eval_history \
+            agent-ci-image \
+            agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
+
+      - name: Upload Eval Results
+        if: always() # Always upload results even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: ${{ github.workspace }}/eval_results/
 
   deploy:
     name: Deploy to Agent Platform
