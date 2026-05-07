@@ -108,9 +108,12 @@ jobs:
           # Update version in pyproject.toml to match the tag
           sed -i 's/version = ".*"/version = "'"$TAG_NAME"'"/' pyproject.toml
           
-          # Create a dummy gcloud script to satisfy the tool's project resolution
+          # Create a dummy gcloud script to satisfy the tool's project and location resolution
           echo '#!/bin/sh' > ${{ github.workspace }}/gcloud
-          echo 'echo "lpr-gemini-enterprise-1"' >> ${{ github.workspace }}/gcloud
+          echo 'case "$*" in' >> ${{ github.workspace }}/gcloud
+          echo '  *"project"*) echo "lpr-gemini-enterprise-1" ;;' >> ${{ github.workspace }}/gcloud
+          echo '  *) echo "us-central1" ;;' >> ${{ github.workspace }}/gcloud
+          echo 'esac' >> ${{ github.workspace }}/gcloud
           chmod +x ${{ github.workspace }}/gcloud
           
           docker run --rm \
