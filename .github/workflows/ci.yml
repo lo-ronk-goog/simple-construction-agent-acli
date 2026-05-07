@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - dev
-    tags:
-      - 'v*' # Trigger on version tags
+      - main
   workflow_dispatch:
 
 env:
@@ -59,15 +58,17 @@ jobs:
   deploy:
     name: Deploy to Agent Platform
     needs: test-and-eval
-    if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags
+    if: github.ref == 'refs/heads/main' # Run only on merge to main
     runs-on: ubuntu-latest
-    environment: production # This enables the HITL manual approval gate
+    environment: production # HITL approval gate
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history so we can find tags
 
       - name: Authenticate to Google Cloud
         id: auth
@@ -81,10 +82,15 @@ jobs:
         run: |
           echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin us-central1-docker.pkg.dev
 
+      - name: Get Latest Tag
+        id: get_tag
+        run: |
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
+
       - name: Deploy with Tag
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          TAG_NAME: ${{ github.ref_name }}
+          TAG_NAME: ${{ steps.get_tag.outputs.tag }}
           GOOGLE_APPLICATION_CREDENTIALS: /app/gha-creds.json
         run: |
           echo "Deploying version $TAG_NAME to Agent Platform..."
