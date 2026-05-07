@@ -167,6 +167,7 @@ root_agent = Agent(
     Your goal is to help users calculate materials needed for their projects.
     To check inventory, use the `call_mcp_bigquery` tool to run SQL queries. Do not write Python code or use `print()`. Call the tool directly.
     You can also use `calculate_materials` to calculate needed quantities and `read_material_url` to get details from a URL.
+    If the user provides the area directly instead of length and width, you can use the `calculate_materials` tool by passing the area as the `length` and `1` as the `width`.
     You MUST use project ID 'lpr-gemini-enterprise-1' and dataset ID 'construction_inventory'.
     The table schema is:
     - Table: `construction_inventory.inventory`
