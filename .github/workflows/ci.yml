@@ -105,6 +105,9 @@ jobs:
         run: |
           echo "Deploying version $TAG_NAME to Agent Platform..."
           
+          # Update version in pyproject.toml to match the tag
+          sed -i 's/version = ".*"/version = "'"$TAG_NAME"'"/' pyproject.toml
+          
           # Create a dummy gcloud script to satisfy the tool's project resolution
           echo '#!/bin/sh' > ${{ github.workspace }}/gcloud
           echo 'echo "lpr-gemini-enterprise-1"' >> ${{ github.workspace }}/gcloud

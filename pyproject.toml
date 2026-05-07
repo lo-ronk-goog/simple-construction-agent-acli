@@ -1,5 +1,5 @@
 [project]
-name = "agents-cli-demo"
+name = "remodel-estimator-agent"
 version = "0.1.0"
 description = ""
 authors = [
@@ -95,7 +95,7 @@ packages = ["app","frontend"]
 [tool.agents-cli]
 # Generation metadata - enables CLI commands to understand project context
 # These fields allow any generated project to work as a remote template
-name = "agents-cli-demo"
+name = "remodel-estimator-agent"
 description = "Simple ReAct agent"
 base_template = "adk"
 agent_directory = "app"
