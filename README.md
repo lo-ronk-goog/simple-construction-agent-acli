@@ -1,7 +1,15 @@
 # agents-cli-demo
 
-Simple ReAct agent
-Agent generated with `agents-cli` version `0.1.3`
+## 🏗️ About This Agent
+
+This repository contains a **Remodel Material Estimator** agent, a precise construction estimator that helps users calculate materials needed for their projects.
+
+### Key Features:
+*   **Material Calculations**: Calculates quantities for subway tile, grout, paint, and hardwood flooring.
+*   **Web Scraping**: Reads product URLs to find pricing or coverage info.
+*   **MCP BigQuery Integration**: Talks to a **Model Context Protocol (MCP)** server to execute SQL queries against BigQuery to check live inventory in the `construction_inventory` dataset.
+
+Agent generated with `agents-cli` version `0.1.3`.
 
 ## Project Structure
 
