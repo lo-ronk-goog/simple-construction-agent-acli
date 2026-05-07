@@ -1,0 +1,52 @@
+{
+  "eval_set_id": "basic_eval",
+  "name": "Basic Construction Agent Evaluation",
+  "description": "Evaluation set for testing construction estimation functionality.",
+  "eval_cases": [
+    {
+      "eval_id": "greeting",
+      "conversation": [
+        {
+          "user_content": {
+            "parts": [{"text": "Hello, what can you help me with?"}]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "app",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "material_estimation",
+      "conversation": [
+        {
+          "user_content": {
+            "parts": [{"text": "I need to paint a room that is 10x12 feet with a height of 8 feet. Calculate the paint needed."}]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "app",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "inventory_check",
+      "conversation": [
+        {
+          "user_content": {
+            "parts": [{"text": "Check if we have enough paint_white in inventory for a 120 sq ft room."}]
+          }
+        }
+      ],
+      "session_input": {
+        "app_name": "app",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    }
+  ]
+}
