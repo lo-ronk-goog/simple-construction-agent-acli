@@ -46,7 +46,8 @@ jobs:
           # We pass UV_QUIET and PYTHONWARNINGS to reduce log noise
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
-            -e UV_QUIET=1 \
+            -e UV_QUIET=true \
+            -e UV_NO_PROGRESS=true \
             -e PYTHONWARNINGS="ignore" \
             -v ${{ github.workspace }}:/app \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
