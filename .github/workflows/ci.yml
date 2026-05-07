@@ -97,6 +97,7 @@ jobs:
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
             -e GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS \
+            -e GOOGLE_CLOUD_PROJECT="lpr-gemini-enterprise-1" \
             -v ${{ github.workspace }}:/app \
             -v ${{ steps.auth.outputs.credentials_file_path }}:/app/gha-creds.json \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
