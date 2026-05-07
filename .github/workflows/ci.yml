@@ -123,4 +123,4 @@ jobs:
             -v ${{ github.workspace }}/gcloud:/usr/local/bin/gcloud \
             -v ${{ steps.auth.outputs.credentials_file_path }}:/app/gha-creds.json \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
-            bash -c "uv lock && agents-cli deploy --project lpr-gemini-enterprise-1 --region us-central1 --no-confirm-project && agents-cli publish gemini-enterprise --display-name 'Remodel Estimator Agent' --registration-type adk"
+            bash -c "agents-cli publish gemini-enterprise --help"
