@@ -32,6 +32,7 @@ jobs:
     needs: build-and-test
     if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags
     runs-on: ubuntu-latest
+    environment: production # This enables the HITL manual approval gate
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
