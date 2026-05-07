@@ -62,15 +62,36 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags
     runs-on: ubuntu-latest
     environment: production # This enables the HITL manual approval gate
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/152008061700/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-runner-sa@lpr-gemini-enterprise-1.iam.gserviceaccount.com
+          token_format: 'access_token'
+
+      - name: Log in to Docker
+        run: |
+          echo "${{ steps.auth.outputs.access_token }}" | docker login -u oauth2accesstoken --password-stdin us-central1-docker.pkg.dev
 
       - name: Deploy with Tag
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TAG_NAME: ${{ github.ref_name }}
+          GOOGLE_APPLICATION_CREDENTIALS: /app/gha-creds.json
         run: |
           echo "Deploying version $TAG_NAME to Agent Platform..."
-          # Example of how you might use the tag in deployment:
-          # docker run --rm -e GEMINI_API_KEY=$GEMINI_API_KEY us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest agents-cli deploy --version $TAG_NAME
+          docker run --rm \
+            -e GEMINI_API_KEY=$GEMINI_API_KEY \
+            -e GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS \
+            -v ${{ github.workspace }}:/app \
+            -v ${{ steps.auth.outputs.credentials_file_path }}:/app/gha-creds.json \
+            us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
+            agents-cli deploy
