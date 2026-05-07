@@ -33,7 +33,12 @@ except google.auth.exceptions.DefaultCredentialsError:
 project_id = project_id or os.environ.get("PROJECT_ID", "lpr-gemini-enterprise-1")
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
-os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
+
+# Fallback to AI Studio if only API key is provided (useful for CI)
+if "GEMINI_API_KEY" in os.environ and not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "False"
+else:
+    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 
 def call_mcp_bigquery(query: str) -> str:
