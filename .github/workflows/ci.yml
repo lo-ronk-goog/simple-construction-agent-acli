@@ -42,16 +42,13 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          # Run the container and mount the entire workspace
-          # We pass UV_QUIET and PYTHONWARNINGS to reduce log noise
+          # Run the container and filter out the verbose dependency noise
           docker run --rm \
             -e GEMINI_API_KEY=$GEMINI_API_KEY \
-            -e UV_QUIET=true \
-            -e UV_NO_PROGRESS=true \
             -e PYTHONWARNINGS="ignore" \
             -v ${{ github.workspace }}:/app \
             us-central1-docker.pkg.dev/lpr-gemini-enterprise-1/agent-cli-image/agent-cli-runner:latest \
-            agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json
+            agents-cli eval run --evalset tests/eval/evalsets/basic.evalset.json | grep -v -E "Downloading|Downloaded|Installed| \\+|Building|Built|Prepared|Resolved|warning: Failed to hardlink|Using CPython|Creating virtual environment"
 
       - name: Upload Eval Results
         if: always()
