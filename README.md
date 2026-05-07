@@ -73,18 +73,35 @@ You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`
 
 ## 🚀 CI/CD Pipeline
 
-This project includes a custom CI/CD pipeline configured for GitHub Actions:
+This project includes a custom CI/CD pipeline configured for GitHub Actions that follows enterprise best practices:
 
 - **File**: `.github/workflows/ci.yml`
-- **Environment**: Defined by the `Dockerfile` in the root directory. It installs `agents-cli` and handles dependencies like `litellm` in the cloud.
-- **Triggers**:
-  - **CI**: Runs on every Pull Request or push to `main`. It builds the container and runs agent evaluations.
-  - **CD**: Triggers when you push a version tag (e.g., `v1.0.0`).
+- **Environment**: Uses a shared Docker image in Artifact Registry for fast execution and to bypass local workstation blocks.
 
-### How to use:
-1.  Add your `GEMINI_API_KEY` to GitHub Secrets.
-2.  Push code to see the CI run evaluations.
-3.  Push a tag to trigger the deployment workflow.
+### Workflow Strategy:
+
+1.  **Active Development (`dev` branch)**:
+    *   Pushes to the `dev` branch trigger the **Continuous Integration** job.
+    *   It runs unit tests and agent evaluations (`agents-cli eval run`) inside the container.
+    *   Logs are kept quiet on success to reduce noise.
+    *   Deployment is skipped.
+
+2.  **Release to Production (`main` branch)**:
+    *   When code is ready, merge `dev` into `main`.
+    *   The merge triggers the workflow on the `main` branch.
+    *   It runs the tests one last time.
+    *   It features a **Human-in-the-Loop (HITL)** approval gate that pauses execution and waits for manual approval in the GitHub UI.
+    *   Once approved, it:
+        *   Finds the latest Git tag in history to use as the version.
+        *   Updates `pyproject.toml` with the tag name.
+        *   Mocks `gcloud` to force deployment to `us-central1` in project `lpr-gemini-enterprise-1`.
+        *   Runs `agents-cli deploy` and `agents-cli publish gemini-enterprise` to fully register the agent!
+
+### How to Release:
+1.  Work on `dev`.
+2.  When happy, create a tag on the `dev` branch (e.g., `v0.5.0`).
+3.  Merge `dev` into `main`.
+4.  Approve the deployment in the GitHub Actions UI!
 
 ---
 
