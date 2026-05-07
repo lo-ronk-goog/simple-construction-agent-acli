@@ -23,8 +23,13 @@ from google.genai import types
 
 import os
 import google.auth
+import google.auth.exceptions
 
-_, project_id = google.auth.default()
+try:
+    _, project_id = google.auth.default()
+except google.auth.exceptions.DefaultCredentialsError:
+    project_id = None
+
 project_id = project_id or os.environ.get("PROJECT_ID", "lpr-gemini-enterprise-1")
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
